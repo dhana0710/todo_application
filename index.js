@@ -1,7 +1,7 @@
 const taskContainer = document.querySelector(".task__Container");
 
 //Global Store
-const gobalStore = [];
+let globalStore = [];
 
 
 
@@ -15,8 +15,10 @@ const newCard = ({
                     <div class="col-md-6 col-lg-4 mt-5" id=${id}>
                     <div class="card">
                         <div class="card-header d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-primary"><i class="fas fa-pencil-alt"></i></button>
-                            <button type="button" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i></button>
+                            
+                            <button type="button" class="btn btn-outline-danger" id=${id} onclick="deleteCard.apply(this, arguments)">
+                                <i class="far fa-trash-alt" id=${id} onclick="deleteCard.apply(this, arguments)"></i>
+                            </button>
                         </div>
                         <img src=${imageUrl} class="card-img-top" alt="Image">
                         <div class="card-body">
@@ -31,10 +33,13 @@ const newCard = ({
     
     `;
 
+//<button type="button" class="btn btn-outline-success"><i class="fas fa-pencil-alt"></i></button>
+
 
 const loadInitialTaskcard = () => {
     //access  localStorage
     const getInitialData = localStorage.getItem("tasky");
+    //or localStorage.tasky
     if (!getInitialData) return;
 
     //convert value string to Object
@@ -46,14 +51,10 @@ const loadInitialTaskcard = () => {
     cards.map((cardObj) => {
         const createNewCard = newCard(cardObj);
         taskContainer.insertAdjacentHTML("beforeend", createNewCard);
-        gobalStore.push(cardObj);
+        globalStore.push(cardObj);
     })
 
-}
-
-
-
-
+};
 
 
 
@@ -73,14 +74,53 @@ const saveChanges = () => {
     taskContainer.insertAdjacentHTML("beforeend", createNewCard);
 
     //card object Store in array.
-    gobalStore.push(taskData);
+    globalStore.push(taskData);
 
     //call localStorage API
     //{card:[{...},{....}]}
     //localStorage.setItem("tasky", { card: gobalStore })
-    localStorage.setItem("tasky", JSON.stringify({ cards: gobalStore }));
+    localStorage.setItem("tasky", JSON.stringify({ cards: globalStore }));
 
-}
+};
+
+
+const deleteCard = (event) => {
+
+    event = window.event;
+
+    const targetID = event.target.id;
+    console.log(targetID)
+
+    const tagname = event.target.tagName; //BUTTON
+
+    const newUpdateArray = globalStore.filter((cardObj) => cardObj.id !== targetID);
+
+    globalStore = newUpdateArray;
+
+    localStorage.setItem("tasky", JSON.stringify({ cards: globalStore }));
+
+
+
+    //access DOM to remove them
+
+    if (tagname === "BUTTON") {
+        //return event.target.parentNode.parentNode.parentNode.parentNode.removeChild(
+        //    event.target.parentNode.parentNode.parentNode
+        return taskContainer.removeChild(
+            event.target.parentNode.parentNode.parentNode
+        );
+
+    }
+
+    return taskContainer.removeChild(
+        event.target.parentNode.parentNode.parentNode.parentNode
+    );
+
+
+
+
+};
+
 
 
 //Issues
